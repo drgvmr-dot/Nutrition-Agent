@@ -1,117 +1,153 @@
-# DIP Diet Advisor — ML Web Application
+# 🥗 AI-Powered Nutrition Agent
 
-A personalised dietary recommendation web app built with **Python**, **scikit-learn**, and **Streamlit** that classifies users into one of three **DIP Diet profiles** and delivers actionable meal plans, a 7-day schedule, and lifestyle tips.
+> **IBM Granite + IBM Watsonx AI + RAG-powered Multi-Agent Nutrition System**
 
-> **DIP Diet** (Disciplined & Intelligent Plan) is a whole-food, plant-forward dietary philosophy that emphasises fruits, vegetables, legumes, millets, and proper hydration while eliminating processed foods and refined sugar.
+---
+
+## 🚀 Quick Start
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Run the application
+python run.py
+```
+
+Open your browser at: **http://localhost:8000**  
+API Docs: **http://localhost:8000/docs**
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    AI Nutrition Agent                        │
+│                  IBM Granite-3.3-8B-Instruct                 │
+├─────────────┬──────────────┬──────────────┬─────────────────┤
+│  Nutrition  │     Diet     │    Health    │   Food Log &    │
+│  Knowledge  │ Recommend.   │  Advisory    │   Feedback      │
+│   Agent     │   Agent      │   Agent      │    Agent        │
+├─────────────┴──────────────┴──────────────┴─────────────────┤
+│              RAG Vector Store (ChromaDB)                     │
+│         USDA FoodData + NIH + AHA + ADA Knowledge Base      │
+├─────────────────────────────────────────────────────────────┤
+│                 FastAPI Backend + REST API                   │
+├─────────────────────────────────────────────────────────────┤
+│          Visualization Dashboard (HTML + Chart.js)           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🤖 Multi-Agent System
+
+| Agent | Role | Technology |
+|-------|------|-----------|
+| 🔬 **Nutrition Knowledge Agent** | Fetches/summarizes nutritional data via RAG | IBM Granite + ChromaDB |
+| 🥗 **Diet Recommendation Agent** | Personalized 7-day meal plans (Mifflin-St Jeor BMR) | IBM Granite |
+| ⚕️ **Health Advisory Agent** | Disease-specific dietary guidance | IBM Granite |
+| 📝 **Food Log & Feedback Agent** | Meal logging + nutritional analysis + weekly reports | IBM Granite |
+
+---
+
+## 📡 API Endpoints
+
+### Nutrition Knowledge Agent
+```
+POST /api/nutrition/query       # Query nutritional data via RAG
+```
+
+### Diet Recommendation Agent
+```
+POST /api/diet/plan             # Generate personalized 7-day meal plan
+```
+
+### Health Advisory Agent
+```
+POST /api/health/advisory       # Get health-focused dietary advice
+POST /api/health/disease-plan   # Disease-specific diet plan
+```
+
+### Food Log & Feedback Agent
+```
+POST /api/food-log/analyze              # Log and analyze a meal
+GET  /api/food-log/daily-summary/{uid}  # Daily nutrition summary
+GET  /api/food-log/weekly-report/{uid}  # Weekly nutrition report
+GET  /api/food-log/logs/{uid}           # All logs
+```
+
+### Chat & Dashboard
+```
+POST /api/chat                  # Master chat (auto-routes to agents)
+GET  /api/dashboard/{uid}       # Dashboard data
+GET  /api/health                # System health check
+```
+
+---
+
+## 🔧 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **AI Model** | IBM Granite 3.3-8B-Instruct |
+| **AI Platform** | IBM Watsonx AI |
+| **Backend** | FastAPI (Python) |
+| **RAG** | ChromaDB + Sentence Transformers |
+| **Frontend** | Vanilla HTML/CSS/JS + Chart.js |
+| **Auth** | IBM Cloud API Key |
+
+---
+
+## 🌟 Features
+
+- ✅ **Personalized Diet Plans** — Mifflin-St Jeor BMR calculation, 7-day meal plans
+- ✅ **RAG Nutrition Database** — USDA, NIH, AHA, ADA sourced knowledge base
+- ✅ **Meal Logging & Analysis** — Text-based meal logging with full nutritional breakdown
+- ✅ **Disease Management** — Diabetes, hypertension, heart disease, kidney disease, PCOS, hypothyroidism
+- ✅ **Preventive Health Focus** — Evidence-based dietary interventions
+- ✅ **Multi-Agent Routing** — Smart chat interface auto-routes to best specialist
+- ✅ **Visualization Dashboard** — Nutrient tracking, activity charts, macro distribution
+- ✅ **Daily & Weekly Reports** — AI-generated summaries and recommendations
+- ✅ **Cultural Preferences** — Supports diverse dietary patterns (halal, vegetarian, regional)
+
+---
+
+## 🏥 Supported Disease Plans
+
+| Disease | Key Dietary Focus |
+|---------|------------------|
+| Type 2 Diabetes | Low GI foods, carb counting, fiber |
+| Hypertension | DASH diet, sodium restriction |
+| Heart Disease | Mediterranean diet, omega-3, LDL reduction |
+| Kidney Disease | Potassium/phosphorus/protein restriction |
+| PCOS | Insulin resistance management, anti-inflammatory |
+| Hypothyroidism | Iodine, selenium, zinc optimization |
 
 ---
 
 ## 📁 Project Structure
 
 ```
-project/
-├── app.py                    # Streamlit web application
-├── train_model.py            # Model training script
-├── requirements.txt          # Python dependencies
-├── README.md
-├── agent_instructions.md
-├── .env.example
-├── data/
-│   └── dip_diet.csv          # DIP Diet dataset (200 rows, 3 profiles)
-└── models/
-    └── model.pkl             # Saved best-performing pipeline
+PROJECT3/
+├── app/
+│   ├── main.py                        # FastAPI application
+│   ├── config.py                      # IBM Watsonx AI config
+│   ├── agents/
+│   │   ├── nutrition_knowledge_agent.py
+│   │   ├── diet_recommendation_agent.py
+│   │   ├── health_advisory_agent.py
+│   │   └── food_log_agent.py
+│   └── rag/
+│       └── vector_store.py            # ChromaDB + nutrition KB
+├── static/
+│   └── index.html                     # Dashboard frontend
+├── requirements.txt
+├── run.py
+└── README.md
 ```
 
 ---
 
-## 🥗 Diet Profiles
-
-| Profile | Emoji | Description |
-|---|---|---|
-| **Green Warrior** | 🟢 | Excellent habits — high natural food intake, active, low stress |
-| **Balanced Builder** | 🔵 | Moderate habits — mix of natural and processed, room to improve |
-| **Detox Starter** | 🟠 | High processed food / low activity — needs a structured reset |
-
----
-
-## 🚀 Local Setup & Run
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
-```
-
-### 2. Create and activate a virtual environment *(recommended)*
-```bash
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS / Linux
-source .venv/bin/activate
-```
-
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Train the model *(must run once before launching the app)*
-```bash
-python train_model.py
-```
-This will:
-- Load `data/dip_diet.csv`
-- Preprocess numeric + categorical features via `ColumnTransformer`
-- Compare 6 ML classifiers via 5-fold cross-validation
-- Save the best pipeline to `models/model.pkl`
-
-### 5. Launch the Streamlit app
-```bash
-streamlit run app.py
-```
-Open [http://localhost:8501](http://localhost:8501) in your browser.
-
----
-
-## ☁️ Deploy to Streamlit Community Cloud
-
-1. Push the entire project (including `data/` and `models/`) to a **public GitHub repository**.
-2. Go to [share.streamlit.io](https://share.streamlit.io) and click **New app**.
-3. Select your repository, branch (`main`), and set the main file to `app.py`.
-4. Click **Deploy**.
-
-> **Note:** The `models/model.pkl` file must be committed to GitHub so the app can load it on startup.
-
----
-
-## 🧠 ML Details
-
-| Item | Value |
-|---|---|
-| Dataset | `data/dip_diet.csv` (~200 samples) |
-| Problem type | Multi-class Classification (3 classes) |
-| Numeric features | age, weight_kg, height_cm, bmi, activity_level, sleep_hours, water_intake_liters, fruits_per_day, vegetables_per_day, processed_food_score, sugar_intake_score, stress_level |
-| Categorical features | health_goal (weight_loss / muscle_gain / maintenance) |
-| Target | diet_profile (Green_Warrior / Balanced_Builder / Detox_Starter) |
-| Preprocessing | StandardScaler (numeric) + OneHotEncoder (categorical) via ColumnTransformer |
-| Models compared | Logistic Regression, KNN, Decision Tree, Random Forest, Gradient Boosting, SVM |
-| Selection criterion | 5-fold cross-validation accuracy |
-
----
-
-## 🔑 Environment Variables
-
-No API keys are required for this project.  
-See `.env.example` for the template if you extend the app with external services (e.g., LLM-powered recommendations).
-
----
-
-## 📦 Dependencies
-
-See `requirements.txt`:
-- `streamlit` — web interface
-- `pandas` — data loading & manipulation
-- `numpy` — numerical operations
-- `scikit-learn` — ML models, pipelines, and preprocessing
-- `openpyxl` — Excel file support
+*Built with IBM Granite-3.3-8B-Instruct | IBM Watsonx AI | IBM Cloud*
